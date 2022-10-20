@@ -1,7 +1,9 @@
 # BLUE IS STEERING
 # Libraries or packages used.
+
+from pynput import keyboard
 import RPi.GPIO as GPIO
-import curses, time, os, sys
+import time, os, sys
 import pigpio
 
 # pins used
@@ -48,7 +50,7 @@ def key_press(key):
         # Checks if the car is below the max
         # Increments the motor
         elif pi.get_servo_pulsewidth(ESC) < ESC_Max:
-=            pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) - 100)
+            pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) - 100)
         
         # If greater than max
         # Sets motor to max
