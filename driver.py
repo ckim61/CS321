@@ -23,7 +23,7 @@ full_left = 10
 full_right = 5
 middle = 7.5
 # This set steering in the middle
-pwm_steering.start(middle)
+pwm_steering.start(middle) # pwm_steering.start(0); start the signal at 0 ? 
 
 # Motor max, min, and break constants
 ESC_Max = 1000 #Max forward
