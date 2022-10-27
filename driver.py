@@ -30,7 +30,7 @@ pwm_steering.start(middle) # pwm_steering.start(0); start the signal at 0 ?
 
 # Motor max, min, and break constants
 ESC_Max = 1300 #Max forward
-ESC_Min = 1 #Max reverse
+ESC_Min = 1700 #Max reverse
 ESC_break = 1500 #Breaking
 
 # Set up motor
