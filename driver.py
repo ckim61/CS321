@@ -1,10 +1,14 @@
 # BLUE IS STEERING
 # Libraries or packages used.
 
-from pynput import keyboard
+import keyboard
 import RPi.GPIO as GPIO
 import time, os, sys
 import pigpio
+
+# Set up for keyboard listener
+keepListening = True
+keyboard.hook(key_press)
 
 # pins used
 steering_pin = 12 # Pin used for the steering.
@@ -38,7 +42,26 @@ pi.set_servo_pulsewidth(ESC, ESC_break)
 
 # Function for if a key is pressed
 def key_press(key):
+    if key.event_type == "up":
+        # If 'w' is released
+        # Set motor to coasting
+        if key.char == 'w':
+            pi.set_servo_pulsewidth(ESC, 0)
 
+        # If 's' is released
+        # Set motor to coasting
+        if key.char == 's':
+            pi.set_servo_pulsewidth(ESC, 0)
+
+        # If 'a' is released
+        # Set servo to middle position
+        if key.char == 'a':
+            pwm_steering.ChangeDutyCycle(middle)
+
+        # If 'd' is released
+        # Set servo to middle position
+        if key.char == 'd':
+            pwm_steering.ChangeDutyCycle(middle)
     # Checks for 'w' or forward input
     if key.char == 'w':
        
@@ -95,28 +118,7 @@ def key_press(key):
         pwm_steering.stop()
         exit()
 
-def key_release(key):
 
-    # If 'w' is released
-    # Set motor to coasting
-    if key.char == 'w':
-        pi.set_servo_pulsewidth(ESC, 0)
-
-    # If 's' is released
-    # Set motor to coasting
-    if key.char == 's':
-        pi.set_servo_pulsewidth(ESC, 0)
-
-    # If 'a' is released
-    # Set servo to middle position
-    if key.char == 'a':
-        pwm_steering.ChangeDutyCycle(middle)
-
-    # If 'd' is released
-    # Set servo to middle position
-    if key.char == 'd':
-        pwm_steering.ChangeDutyCycle(middle)
-
-# Set up for keyboard listener
-with keyboard.Listener(on_press = key_press, on_release = key_release) as listener:
-    listener.join()
+# Continues listening to keyboard
+while keepListening:
+    time.sleep(0.5)
