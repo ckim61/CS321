@@ -1,13 +1,9 @@
 # BLUE IS STEERING
 # Libraries or packages used.
 
-import keyboard
 import RPi.GPIO as GPIO
-import time, os, sys
+import curses, time, os, sys
 import pigpio
-
-# Set up for keyboard listener
-keepListening = True
 
 # pins used
 steering_pin = 12 # Pin used for the steering.
@@ -39,8 +35,14 @@ pi.set_servo_pulsewidth(ESC, 0) #Starts motor at break
 time.sleep(1)
 pi.set_servo_pulsewidth(ESC, ESC_break)
 
+#Initialize curses to detect keyboard inputs
+stdCurses = curses.initscr()
+stdCurses.keypad(True)
+curses.cbreak()
+curses.echo(False)
+
 # Function for if a key is pressed
-def key_press(key):
+def keyPress(key):
     if key.event_type == "up":
         # If 'w' is released
         # Set motor to coasting
@@ -63,7 +65,72 @@ def key_press(key):
             pwm_steering.ChangeDutyCycle(middle)
     if key.event_type == "down":
     # Checks for 'w' or forward input
-    if key.name == "w":
+        if key.name == "w":
+
+            print("pressed w");
+           
+            # Checks if the car is coasting at 0 pulse
+            # Starts the motor at one step forwards
+            if pi.get_servo_pulsewidth(ESC) == 0:
+                pi.set_servo_pulsewidth(ESC, ESC_break - 50)
+           
+            # Checks if the car is below the max
+            # Increments the motor
+            elif pi.get_servo_pulsewidth(ESC) < ESC_Max:
+                pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) - 100)
+            
+            # If greater than max
+            # Sets motor to max
+            else:
+                pi.set_servo_pulsewidth(ESC_Max)
+           
+            print("Current Speed: ", pi.get_servo_pulsewidth(ESC))
+       
+        # Checks for 's' or backwards input
+        if key.name == "s":
+
+            # Checks if the car is coasting at 0 pulse
+            # Starts the motor at one step backwards
+            if pi.get_servo_pulsewidth(ESC) == 0:
+                pi.set_servo_pulsewidth(ESC, ESC_break + 50)
+            
+            # Checks if the car is above the min
+            # Decrements the motor
+            elif pi.get_servo_pulsewidth(ESC) > ESC_Min:
+                pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) + 100)
+            
+            # If less than min
+            # Sets motor to min
+            else:
+                pi.set_servo_pulsewidth(ESC_Min)
+
+        # Checks for left input
+        # Sets servo to left
+        if key.name == "a":
+            pwm_steering.ChangeDutyCycle(full_left)
+        
+        # Checks for right input
+        # Sets servo to right
+        if key.name == "d":
+            pwm.ChangeDutyCycle(full_right)
+
+        if key.name == "space":
+            pwm.ChangeDutyCycle(middle)
+       
+       # Quit
+        if key.name == "q":
+            pi.set_servo_pulsewidth(ESC, 0)
+            pi.stop()
+            pwm_steering.ChangeDutyCycle(middle)
+            pwm_steering.stop()
+            exit()
+
+
+while True:
+    c = stdCurses.getch() #Retrieve the input
+
+    if c == ord('w'):
+        print("pressed w");
        
         # Checks if the car is coasting at 0 pulse
         # Starts the motor at one step forwards
@@ -81,10 +148,8 @@ def key_press(key):
             pi.set_servo_pulsewidth(ESC_Max)
        
         print("Current Speed: ", pi.get_servo_pulsewidth(ESC))
-   
-    # Checks for 's' or backwards input
-    if key.name == "s":
 
+    elif c == ord('s'):
         # Checks if the car is coasting at 0 pulse
         # Starts the motor at one step backwards
         if pi.get_servo_pulsewidth(ESC) == 0:
@@ -100,30 +165,16 @@ def key_press(key):
         else:
             pi.set_servo_pulsewidth(ESC_Min)
 
-    # Checks for left input
-    # Sets servo to left
-    if key.name == "a":
-        pwm_steering.ChangeDutyCycle(full_left)
-    
-    # Checks for right input
-    # Sets servo to right
-    if key.name == "d":
-        pwm.ChangeDutyCycle(full_right)
-
-    if key.name == "space":
-        pwm.ChangeDutyCycle(middle)
-   
-   # Quit
-    if key.name == "q":
-        pi.set_servo_pulsewidth(ESC, 0)
-        pi.stop()
+    elif c == ord('q'):
         pwm_steering.ChangeDutyCycle(middle)
         pwm_steering.stop()
-        exit()
+        GPIO.cleanup()
+        break
+    elif c == ord('a'):
+        pwm_steering.ChangeDutyCycle(full_left) #sets servo to left position
+    elif c == ord('d'):
+        pwm_steering.ChangeDutyCycle(full_right) #sets servo to right position
 
-keyboard.hook(key_press)
-
-
-# Continues listening to keyboard
-while keepListening:
-    time.sleep(0.5)
+    else:
+        pwm_steering.ChangeDutyCycle(middle) #resets servo to straight
+        pi.set_servo_pulsewidth(ESC, 0)
