@@ -13,7 +13,7 @@ ESC = 13 # pin used for motor
 steer_freq = 50
 
 # Setup the GPIO board.
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 # Setup the servo pin
 GPIO.setup(steering_pin,GPIO.OUT) # This sets up the pin for the Steering servo.
 
@@ -56,7 +56,7 @@ def keyPress(key):
         # If greater than max
         # Sets motor to max
         else:
-            pi.set_servo_pulsewidth(ESC_Max)
+            pi.set_servo_pulsewidth(ESC, ESC_Max)
        
         print("Current Speed: ", pi.get_servo_pulsewidth(ESC))
    
@@ -76,7 +76,7 @@ def keyPress(key):
         # If less than min
         # Sets motor to min
         else:
-            pi.set_servo_pulsewidth(ESC_Min)
+            pi.set_servo_pulsewidth(ESC, ESC_Min)
 
     # Checks for left input
     # Sets servo to left

@@ -7,7 +7,7 @@ steering_pin = 12 # Pin used for the steering.
 # Frequency used for the steering, which is 50Hz.
 steer_freq = 50
 # Setup the GPIO board.
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 # Setup the pins.
 GPIO.setup(steering_pin,GPIO.OUT) # This sets up the pin for the Steering servo.
 # Sets up the PWM for the steering and ESC motor.
