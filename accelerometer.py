@@ -2,11 +2,11 @@ import time
 import board
 import digitalio
 import busio
-import adafruit_lis3dh
+import adafruit_lis3dh #if not install do [sudo pip3 install adafruit-circuitpython-lis3dh] to install library
 
-i2c = busio.I2C(board.SCL, board.SDA)                # Remove this line if using SPI
-int1 = digitalio.DigitalInOut(board.D24)             # Remove this line if using SPI
-lis3dh = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)  # Remove this line if using SPI
+i2c = busio.I2C(board.SCL, board.SDA)                
+int1 = digitalio.DigitalInOut(board.D6)             # interrupt connected to GPIO6
+lis3dh = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)  # 
 
 x, y, z = lis3dh.acceleration
 
