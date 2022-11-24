@@ -34,6 +34,7 @@ class ControllerClient:
 
 
 def main():
+    # replace localhost and 5554 by actual ip address and port number
     SERVER_IP = "localhost"
     SERVER_PORT = 5554
 
