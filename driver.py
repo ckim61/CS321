@@ -21,79 +21,130 @@ pwm_steering = GPIO.PWM(steering_pin,steer_freq)
 full_left = 10
 full_right = 5
 middle = 7.5
+alignment = middle
+
+speed = 0
+
 # This set steering in the middle
 pwm_steering.start(middle) # pwm_steering.start(0); start the signal at 0 ? 
 
-# Motor max, min, and break constants
-ESC_Max = 1300 #Max forward
-ESC_Min = 1700 #Max reverse
+# Motor break constant
 ESC_break = 1500 #Breaking
 
-# Set up motor
-pi = pigpio.pi();
-pi.set_servo_pulsewidth(ESC, 0) #Starts motor at break
-time.sleep(1)
-pi.set_servo_pulsewidth(ESC, ESC_break)
+def quit():
+    pi.set_servo_pulsewidth(ESC, 0)
+    pi.stop()
+    pwm_steering.ChangeDutyCycle(middle)
+    pwm_steering.stop()
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+    exit()
 
-#Initialize curses to detect keyboard inputs
-stdCurses = curses.initscr()
-stdCurses.keypad(True)
-curses.cbreak()
-curses.echo(False)
+def control():
+    #Initialize curses to detect keyboard inputs
+    stdCurses = curses.initscr()
+    stdCurses.keypad(True)
+    curses.echo(False)
+    curses.cbreak()
+    ESC_Max = 1000 #Max forward
+    ESC_Min = 2000 #Max reverse
+    speed = 0
+    alignment = middle
+    while True:
+        c = stdCurses.getch() #Retrieve the input
 
+        if c == ord('w'):
+            print("pressed w");
+           
+            # Checks if the car is coasting at 0 pulse
+            # Starts the motor at one step forwards
+            if speed == 0:
+                speed = ESC_break - 50
+           
+            # Checks if the car is below the max
+            # Increments the motor
+            elif speed > ESC_Max:
+                speed = speed - 50
+                if speed < ESC_Max:
+                    speed = ESC_Max
+            
+            # If greater than max
+            # Sets motor to max
+            else:
+                speed = ESC_Max
+            pi.set_servo_pulsewidth(ESC, speed)           
+            print("Current Speed: ", pi.get_servo_pulsewidth(ESC))
 
-while True:
-    c = stdCurses.getch() #Retrieve the input
+        elif c == ord('s'):
+            print("pressed s");
 
-    if c == ord('w'):
-        print("pressed w");
-       
-        # Checks if the car is coasting at 0 pulse
-        # Starts the motor at one step forwards
-        if pi.get_servo_pulsewidth(ESC) == 0:
-            pi.set_servo_pulsewidth(ESC, ESC_break - 50)
-       
-        # Checks if the car is below the max
-        # Increments the motor
-        elif pi.get_servo_pulsewidth(ESC) < ESC_Max:
-            pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) - 100)
-        
-        # If greater than max
-        # Sets motor to max
-        else:
-            pi.set_servo_pulsewidth(ESC, ESC_Max)
-       
-        print("Current Speed: ", pi.get_servo_pulsewidth(ESC))
+            # Checks if the car is coasting at 0 pulse
+            # Starts the motor at one step backwards
+            if speed == 0:
+                speed = ESC_break + 50
+            
+            # Checks if the car is above the min
+            # Decrements the motor
+            elif speed < ESC_Min:
+                speed = speed + 50
+                if speed > ESC_Min:
+                    speed = ESC_Min
+            
+            # If less than min
+            # Sets motor to min
+            else:
+                speed = ESC_Min
+            pi.set_servo_pulsewidth(ESC, speed)
+            print("Current Speed: ", speed)
 
-    elif c == ord('s'):
-        # Checks if the car is coasting at 0 pulse
-        # Starts the motor at one step backwards
-        if pi.get_servo_pulsewidth(ESC) == 0:
+        elif c == ord('q'):
+            pwm_steering.ChangeDutyCycle(middle)
+            pwm_steering.stop()
+            GPIO.cleanup()
+            quit()
+        elif c == ord('a'):
+            if alignment >= full_left:
+                alignment = full_left
+            else:
+                alignment = alignment + 1.25
+            pwm_steering.ChangeDutyCycle(alignment) #sets servo to left position
+        elif c == ord('d'):
+            if alignment <= full_right:
+                alignment = full_right
+            else:
+                alignment = alignment - 1.25
+            pwm_steering.ChangeDutyCycle(alignment) #sets servo to left position
+        elif c == ord('c'):
+            pwm_steering.ChangeDutyCycle(middle)
+        elif c == ord('v'):
+            pwm_steering.ChangeDutyCycle(0)
+
+def arm():
+    sleep = 0
+    pi.set_servo_pulsewidth(ESC, 0)
+    print("Make sure battery is connected but switch is OFF.  Press ENTER to continue")
+    inp = input()
+    if inp == '':
+        pi.set_servo_pulsewidth(ESC, ESC_break - 50)
+        print("Turn the switch ON now. You will hear two beeps then press Enter")
+        inp = input()
+        if inp == '':            
             pi.set_servo_pulsewidth(ESC, ESC_break + 50)
-        
-        # Checks if the car is above the min
-        # Decrements the motor
-        elif pi.get_servo_pulsewidth(ESC) > ESC_Min:
-            pi.set_servo_pulsewidth(ESC, pi.get_servo_pulsewidth(ESC) + 100)
-        
-        # If less than min
-        # Sets motor to min
-        else:
-            pi.set_servo_pulsewidth(ESC, ESC_Min)
+            print ("Working...")
+            time.sleep(2)
+            print ("Wait for it ....")
+            time.sleep (1)
+            print ("Almost there.....")
+            pi.set_servo_pulsewidth(ESC, 0)
+            time.sleep(1)
+            print ("Arming ESC now...")
+            pi.set_servo_pulsewidth(ESC, ESC_break + 50)
+            time.sleep(1)
+            print ("ESC is armed.  Entering control function")
+            pi.set_servo_pulsewidth(ESC, 0)
+            control()
 
-    elif c == ord('q'):
-        pwm_steering.ChangeDutyCycle(middle)
-        pwm_steering.stop()
-        GPIO.cleanup()
-        break
-    elif c == ord('a'):
-        pwm_steering.ChangeDutyCycle(full_left) #sets servo to left position
-    elif c == ord('d'):
-        pwm_steering.ChangeDutyCycle(full_right) #sets servo to right position
-    elif c == ord('c'):
-        pwm_steering.ChangeDutyCycle(middle)
-
-
-curses.nocbreak()
-curses.echo()
-curses.endwin()
+# Set up motor
+pi = pigpio.pi()
+arm()
