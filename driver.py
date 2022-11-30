@@ -118,7 +118,7 @@ def control():
         elif c == ord('c'):
             pwm_steering.ChangeDutyCycle(middle)
         elif c == ord('v'):
-            pwm_steering.ChangeDutyCycle(0)
+            pi.set_servo_pulsewidth(ESC, 0)
 
 def arm():
     sleep = 0
