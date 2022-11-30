@@ -16,7 +16,7 @@ PAGE="""\
 </head>
 <body>
 <center><h1>Racer3 Live Feed</h1></center>
-<center><img src="stream.mjpg" width="640" height="480"></center>
+<center><img src="stream.mjpg" width="320" height="240"></center>
 </body>
 </html>
 """
