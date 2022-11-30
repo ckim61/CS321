@@ -15,7 +15,7 @@ class Accelerometer:
         int1 = digitalio.DigitalInOut(board.D6)             # interrupt connected to GPIO6
         lis3dh = adafruit_lis3dh.LIS3DH_I2C(i2c, int1=int1)
         x, y, z = lis3dh.acceleration #update to code
-        return (x + "," + y+ "," + z); #update
+        return ( str(x) + "," + str(y) + "," + str(z) ); #update
         # return lis3dh.acceleration
 
 
