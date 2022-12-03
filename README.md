@@ -28,6 +28,6 @@ To install a library or dependency that the files need, run the command: ```pip 
 1) **I can't transfer my files to the RPi. Why is that?**
   - Check the Wifi connection. You ***must*** be on the same Wifi as the RPi to be able to transfer files and communicate with it. Or, check that the SD card is fully seated into the RPi. Things happen.  
 2) **I can't run the files/there's an error every time I try to run it.**
-  - Check the spelling of the commands. There have been many times where our team members have mispelled something and have gotten an error in the installation process.    Also to note, you must be in the same directory as the files to be able to run it. Check that is not the case.  
+  - Check the spelling of the commands. There have been many times where our team members have mispelled something and have gotten an error in the installation process.    Also to note, you must be in the same directory as the files to be able to run it. Check that is not the case. Also to note, these must be done using the command prompt. There has been minimal testing done using Windows PowerShell.  
 3) **I need something else.**
   - Feel free to reach out to us in case something goes wrong.
